@@ -5,10 +5,10 @@ FACT_URL = "https://uselessfacts.jsph.pl/random.json"
 JOKE_URL = "https://sv443.net/jokeapi/v2/joke/Any"
 
 
-def info(mood):
+def get_content_by_mood(mood):
     try:
         if mood == "joke":
-            response = requests.get(JOKE_URL)
+            response = requests.get(JOKE_URL, timeout=5)
             response.raise_for_status()
 
             data = response.json()
@@ -19,7 +19,7 @@ def info(mood):
                 return f"{data['setup']} - {data['delivery']}"
 
         elif mood == "fact":
-            response = requests.get(FACT_URL)
+            response = requests.get(FACT_URL, timeout=5)
             response.raise_for_status()
 
             data = response.json()
@@ -33,9 +33,17 @@ def info(mood):
 
 
 user_input = input("fact or joke?: ").lower()
-result = info(user_input)
+result = get_content_by_mood(user_input)
 print("\nResult:")
 print(result)
 
-with open("output.json", "w") as file:
-    json.dump({"result": result}, file, indent=4)
+
+def save_result_to_file(result):
+    try:
+        with open("output.json", "w") as file:
+            json.dump({"result": result}, file, indent=4)
+    except OSError as error:
+        print(f"File write error: {error}")
+
+save_result_to_file(result)
+
